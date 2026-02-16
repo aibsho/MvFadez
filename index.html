@@ -197,7 +197,46 @@
       border-radius: 0.5rem;
     }
 
+    /* Mobile-specific search results panel (better UX on phones) */
+    .search-results.mobile {
+      position: fixed;
+      top: 64px; /* beneath the sticky nav */
+      left: 0;
+      right: 0;
+      max-height: calc(100vh - 64px);
+      border-radius: 0;
+      padding: 0.5rem 0.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      overflow-y: auto;
+      z-index: 200;
+    }
+
+    .search-results.mobile .search-result-item {
+      padding: 1rem;
+      gap: 1rem;
+      font-size: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .search-results.mobile .search-result-item img {
+      width: 64px;
+      height: 64px;
+      border-radius: 0.75rem;
+    }
+
     .search-result-info { flex: 1; }
+
+    /* Button-style result items (reset defaults) */
+    .search-result-item[role="button"], .search-result-item button {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      font: inherit;
+      color: inherit;
+      text-align: left;
+      width: 100%;
+    }
 
     .search-result-name {
       font-weight: 600;
@@ -1220,31 +1259,62 @@
     }
 
     function handleSearch() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
+      const queryRaw = document.getElementById('searchInput').value;
+      const query = queryRaw.trim().toLowerCase();
       const results = document.getElementById('searchResults');
-      
+      const isMobile = window.innerWidth <= 768;
+
+      // Toggle mobile panel class
+      if (isMobile) results.classList.add('mobile'); else results.classList.remove('mobile');
+
       if (query.length === 0) {
         results.classList.remove('active');
         return;
       }
 
-      const filtered = products.filter(p => 
-        p.name.toLowerCase().includes(query) || 
-        p.description.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query)
-      );
+      // scoring function: higher score = better match
+      function scoreForProduct(p) {
+        const name = p.name.toLowerCase();
+        const desc = p.description.toLowerCase();
+        const cat = p.category.toLowerCase();
 
-      if (filtered.length === 0) {
+        // base match score only from textual matches
+        let matchScore = 0;
+        if (name.startsWith(query)) matchScore += 100;
+        else if (name.includes(query)) matchScore += 60;
+        if (desc.includes(query)) matchScore += 30;
+        if (cat.includes(query)) matchScore += 20;
+
+        // if there's no textual match at all, don't include this product
+        if (matchScore === 0) return 0;
+
+        // small boost for featured/popular but only for matched items
+        let score = matchScore;
+        if (p.featured) score += 5;
+        if (p.sales) score += Math.min(30, Math.floor(p.sales / 200));
+        return score;
+      }
+
+      const scored = products
+        .map(p => ({ p, score: scoreForProduct(p) }))
+        .filter(x => x.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .map(x => x.p);
+
+      const limit = isMobile ? 6 : 10;
+      const toShow = scored.slice(0, limit);
+
+      if (toShow.length === 0) {
         results.innerHTML = '<div style="padding: 1rem; text-align: center; color: rgba(255,255,255,0.5);">No products found</div>';
       } else {
-        results.innerHTML = filtered.map(p => `
-          <div class="search-result-item" onclick="goToProduct(${p.id})">
+        results.innerHTML = toShow.map(p => `
+          <button class="search-result-item" onclick="goToProduct(${p.id})" style="background:none; border:none; width:100%; text-align:left;">
             <img src="${p.image}" alt="${p.name}">
             <div class="search-result-info">
               <div class="search-result-name">${p.name}</div>
             </div>
             <div class="search-result-price">£${p.price.toFixed(2)}</div>
-          </div>
+          </button>
         `).join('');
       }
 
