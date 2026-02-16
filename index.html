@@ -918,6 +918,8 @@
     @media (max-width: 768px) {
       .nav-links { display: none; }
       .mobile-menu-button { display: inline-flex; }
+      /* Hide the standalone sign in on small screens (moved into drawer) */
+      .btn-signin { display: none; }
       .search-container { max-width: none; }
       .product-grid { grid-template-columns: 1fr; }
       .product-detail-grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -992,6 +994,7 @@
     <div class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
       <a href="#products">Shop</a>
       <a href="#booking">Book Appointment</a>
+        <a href="#account">Sign In</a>
       <a href="#about">About</a>
       <a href="https://www.instagram.com/mv.fades_" target="_blank" rel="noopener noreferrer">Instagram</a>
     </div>
@@ -1501,6 +1504,33 @@
       });
 
       backdrop.addEventListener('click', closeDrawer);
+
+      // Close drawer when a link inside it is clicked (so page becomes fully visible)
+      drawer.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', (ev) => {
+          // If link opens an external site in a new tab, close immediately to avoid leaving the UI in a bad state
+          const isExternal = a.target === '_blank' || /^https?:\/\//i.test(a.getAttribute('href') || '');
+          if (isExternal) {
+            closeDrawer();
+            return; // allow default behaviour (new tab)
+          }
+
+          // For internal navigation (hash/page change) close quickly after navigation so user sees content
+          setTimeout(closeDrawer, 50);
+        });
+      });
+
+      // If the user navigates away (new tab) and then returns, ensure the drawer is closed and page scroll/overflow is reset
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          closeDrawer();
+        }
+      });
+
+      // Also close on window focus as a fallback
+      window.addEventListener('focus', () => {
+        closeDrawer();
+      });
 
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeDrawer();
