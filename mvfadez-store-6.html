@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MV FADEZ - Premium Grooming</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --gold: #d4af37;
+      --dark: #1a1a1a;
+      --light: #f5f5f5;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: white;
+      color: var(--dark);
+      overflow-x: hidden;
+    }
+
+    .page-loader {
+      position: fixed;
+      inset: 0;
+      background: var(--dark);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+
+    .page-loader.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .logo-text {
+      font-family: 'Caveat', cursive;
+      font-size: 2rem;
+      font-weight: 700;
+      display: inline-flex;
+      white-space: nowrap;
+      color: var(--gold);
+    }
+
+    .logo-text span {
+      display: inline-block;
+      opacity: 0;
+      animation: writeChar 0.2s ease-out forwards;
+    }
+
+    .logo-text span:nth-child(1) { animation-delay: 0.1s; }
+    .logo-text span:nth-child(2) { animation-delay: 0.2s; }
+    .logo-text span:nth-child(3) { animation-delay: 0.3s; }
+    .logo-text span:nth-child(4) { animation-delay: 0.4s; }
+    .logo-text span:nth-child(5) { animation-delay: 0.5s; }
+    .logo-text span:nth-child(6) { animation-delay: 0.6s; }
+    .logo-text span:nth-child(7) { animation-delay: 0.7s; }
+    .logo-text span:nth-child(8) { animation-delay: 0.8s; }
+
+    @keyframes writeChar {
+      from { opacity: 0; transform: translateX(-10px) rotate(-5deg); }
+      to { opacity: 1; transform: translateX(0) rotate(0); }
+    }
+
+    .main-content {
+      opacity: 0;
+      animation: fadeInContent 1s ease-out forwards;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes fadeInContent {
+      to { opacity: 1; }
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .nav-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 64px;
+      gap: 2rem;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--gold); }
+
+    .search-container {
+      position: relative;
+      flex: 1;
+      max-width: 400px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 0.625rem 1rem 0.625rem 2.5rem;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.5);
+      pointer-events: none;
+    }
+
+    .search-results {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      background: var(--dark);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 1rem;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+      z-index: 100;
+    }
+
+    .search-results.active { display: block; }
+
+    .search-result-item {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .search-result-item:hover {
+      background: rgba(212, 175, 55, 0.1);
+    }
+
+    .search-result-item:last-child { border-bottom: none; }
+
+    .search-result-item img {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+    }
+
+    .search-result-info { flex: 1; }
+
+    .search-result-name {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+      color: white;
+    }
+
+    .search-result-price {
+      font-weight: 600;
+      color: var(--gold);
+    }
+
+    .btn-signin {
+      background: transparent;
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 500;
+      border: 1px solid var(--gold);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.875rem;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-signin:hover {
+      background: var(--gold);
+      color: var(--dark);
+    }
+
+    .cart-icon {
+      position: relative;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background 0.3s;
+      cursor: pointer;
+      color: white;
+    }
+
+    .cart-icon:hover { background: rgba(212, 175, 55, 0.2); }
+
+    .cart-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--gold);
+      color: var(--dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cart Sidebar */
+    .cart-sidebar {
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      max-width: 420px;
+      background: var(--dark);
+      box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+      z-index: 101;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cart-sidebar.active { transform: translateX(0); }
+
+    .cart-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .cart-backdrop.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .cart-header h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background 0.3s;
+      color: white;
+    }
+
+    .close-btn:hover { background: rgba(212, 175, 55, 0.2); }
+
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+
+    .cart-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: rgba(255, 255, 255, 0.5);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .cart-empty svg {
+      width: 80px;
+      height: 80px;
+      color: rgba(212, 175, 55, 0.3);
+      margin-bottom: 1rem;
+    }
+
+    .cart-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(212, 175, 55, 0.05);
+      border-radius: 0.75rem;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(212, 175, 55, 0.1);
+    }
+
+    .cart-item-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 0.5rem;
+      flex-shrink: 0;
+    }
+
+    .cart-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cart-item-name {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: 0.25rem;
+      color: white;
+    }
+
+    .cart-item-category {
+      font-size: 0.75rem;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .cart-item-price {
+      font-size: 0.875rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 0.75rem;
+    }
+
+    .cart-item-quantity {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .qty-btn {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid var(--gold);
+      border-radius: 0.375rem;
+      padding: 0.25rem 0.625rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      color: var(--gold);
+    }
+
+    .qty-btn:hover {
+      background: var(--gold);
+      color: var(--dark);
+    }
+
+    .qty-display {
+      font-weight: 600;
+      min-width: 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .cart-item-remove {
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.2s;
+    }
+
+    .cart-item-remove:hover {
+      color: #ef4444;
+    }
+
+    .cart-footer {
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      padding: 1.5rem;
+      background: var(--dark);
+    }
+
+    .cart-subtotal {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.9375rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .cart-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(212, 175, 55, 0.2);
+      color: white;
+    }
+
+    .btn-checkout {
+      width: 100%;
+      background: var(--gold);
+      color: var(--dark);
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-checkout:hover {
+      background: #c19b2b;
+      transform: translateY(-1px);
+    }
+
+    .page {
+      display: none;
+      min-height: 100vh;
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero Section - Premium */
+    .hero {
+      /* Use the local image 'trimss.png' placed in the same folder as this HTML file */
+      background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                  url('./trimss.png') center/cover;
+      padding: 10rem 1rem 12rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero h1 {
+      font-family: 'Dancing Script', cursive;
+      font-style: italic;
+      font-weight: 700;
+      font-size: clamp(4rem, 10vw, 7rem);
+      margin-bottom: 1.5rem;
+      line-height: 1.1;
+      color: white;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+      animation: revealTitle 3s ease-out forwards;
+      opacity: 1;
+    }
+
+    @keyframes revealTitle {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .hero p {
+      font-size: clamp(1.125rem, 3vw, 1.5rem);
+      color: white;
+      font-weight: 300;
+      max-width: 48rem;
+      margin: 0 auto 3rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .btn-primary {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--dark);
+      padding: 1rem 2.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1rem;
+      text-decoration: none;
+    }
+
+    .btn-primary:hover {
+      background: #c19b2b;
+      transform: scale(1.05);
+    }
+
+    .section {
+      padding: 5rem 1rem;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    .section-dark {
+      background: var(--dark);
+      color: white;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .section-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Dancing Script', cursive;
+      font-style: italic;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .section-dark .section-title {
+      color: white;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .product-card {
+      cursor: pointer;
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 1rem;
+      overflow: hidden;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .product-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 30px rgba(212, 175, 55, 0.2);
+    }
+
+    .product-image {
+      background: #f5f5f5;
+      aspect-ratio: 1;
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+
+    .product-info { padding: 1.5rem; }
+
+    .product-category {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    .product-description {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 0.75rem;
+    }
+
+    .product-reviews {
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 1rem;
+    }
+
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .btn-add {
+      background: var(--dark);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      border: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-add:hover { 
+      background: var(--gold);
+      color: var(--dark);
+    }
+
+    .product-detail-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .product-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 4rem;
+    }
+
+    .product-detail-image {
+      position: sticky;
+      top: 80px;
+      height: fit-content;
+    }
+
+    .product-detail-image img {
+      width: 100%;
+      border-radius: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+
+    .product-detail-info {
+      padding-top: 1rem;
+    }
+
+    .breadcrumb {
+      display: flex;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 2rem;
+    }
+
+    .breadcrumb a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+      color: #c19b2b;
+    }
+
+    .product-detail-category {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .product-detail-title {
+      font-family: 'Dancing Script', cursive;
+      font-style: italic;
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+
+    .product-detail-reviews {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .stars {
+      color: var(--gold);
+      font-size: 1.25rem;
+    }
+
+    .product-detail-price {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: var(--dark);
+    }
+
+    .product-detail-description {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: #666;
+      margin-bottom: 3rem;
+    }
+
+    .product-features {
+      background: var(--light);
+      border-radius: 1.5rem;
+      padding: 2rem;
+      margin-bottom: 3rem;
+      border: 1px solid rgba(212, 175, 55, 0.2);
+    }
+
+    .product-features h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .product-features ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .product-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      color: #666;
+    }
+
+    .product-features li:before {
+      content: "✓";
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .product-detail-actions {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .product-detail-actions .btn-primary {
+      flex: 1;
+      padding: 1.25rem 2rem;
+      font-size: 1.125rem;
+    }
+
+    .product-how-to-use {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 3rem;
+    }
+
+    .product-how-to-use h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .product-how-to-use p {
+      font-size: 1.125rem;
+      line-height: 1.8;
+      color: #666;
+    }
+
+    .sort-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .sort-select {
+      padding: 0.75rem 1rem;
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      cursor: pointer;
+      background: white;
+    }
+
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .search-container { max-width: none; }
+      .product-grid { grid-template-columns: 1fr; }
+      .product-detail-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .product-detail-image { position: static; }
+      .product-detail-title { font-size: 2rem; }
+      .product-detail-price { font-size: 2rem; }
+      .cart-sidebar { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-loader" id="pageLoader">
+    <div class="logo-text">
+      <span>M</span><span>V</span><span> </span><span>F</span><span>A</span><span>D</span><span>E</span><span>Z</span>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <nav>
+      <div class="nav-container">
+        <div class="nav-left">
+          <a href="#home" style="text-decoration: none;">
+            <div class="logo-text">
+              <span>M</span><span>V</span><span> </span><span>F</span><span>A</span><span>D</span><span>E</span><span>Z</span>
+            </div>
+          </a>
+
+          <div class="nav-links">
+            <a href="#products">Shop</a>
+            <a href="#booking">Book Appointment</a>
+            <a href="#about">About</a>
+            <a href="https://www.instagram.com/mv.fades_" target="_blank">Instagram</a>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="search-container">
+            <svg class="search-icon" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input 
+              type="text" 
+              class="search-input" 
+              placeholder="Search products..."
+              id="searchInput"
+              oninput="handleSearch()"
+              onfocus="showSearchResults()"
+            >
+            <div class="search-results" id="searchResults"></div>
+          </div>
+
+          <a href="#account" class="btn-signin" id="userBtn">Sign In</a>
+
+          <div class="cart-icon" onclick="toggleCart()">
+            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <span class="cart-badge" id="cartCount">0</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HOME PAGE -->
+    <div id="homePage" class="page active">
+      <section class="hero">
+        <h1>MV Collection</h1>
+        <p>The exact products used in my chair. Professional-grade quality for your daily routine.</p>
+        <a href="#products" class="btn-primary">Shop Collection</a>
+      </section>
+
+      <section class="section">
+        <div class="section-header">
+          <p class="section-label">Barber Recommended</p>
+          <h2 class="section-title">Featured Essentials</h2>
+        </div>
+        <div class="product-grid" id="featuredProducts"></div>
+      </section>
+
+      <section id="about" class="section section-dark" style="padding: 5rem 1rem;">
+        <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+          <h2 class="section-title" style="margin-bottom: 1.5rem;">Trusted by Thousands</h2>
+          <p style="font-size: 1.25rem; color: rgba(255,255,255,0.8); font-weight: 300; margin-bottom: 3rem;">
+            MV Fadez has been delivering premium cuts and grooming services in Romford for years. 
+            Now I'm bringing the same professional-grade products I use daily directly to you.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+            <div><p style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--gold);">5.0</p><p style="color: rgba(255,255,255,0.6);">Rating on Booksy</p></div>
+            <div><p style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--gold);">65+</p><p style="color: rgba(255,255,255,0.6);">Five Star Reviews</p></div>
+            <div><p style="font-size: 3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--gold);">100%</p><p style="color: rgba(255,255,255,0.6);">Satisfaction Guarantee</p></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- PRODUCTS PAGE -->
+    <div id="productsPage" class="page">
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Complete Collection</h2>
+          <p style="color: #666; max-width: 600px; margin: 1rem auto;">Every product has been tested and approved by me personally</p>
+        </div>
+
+        <div class="sort-controls">
+          <p style="color: #666;"><span id="productCount">9</span> products</p>
+          <select class="sort-select" id="sortSelect" onchange="sortProducts()">
+            <option value="featured">Best Sellers</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+          </select>
+        </div>
+
+        <div class="product-grid" id="allProducts"></div>
+      </section>
+    </div>
+
+    <!-- PRODUCT DETAIL PAGE -->
+    <div id="productDetailPage" class="page">
+      <div class="product-detail-container" id="productDetailContent"></div>
+    </div>
+
+    <!-- BOOKING PAGE -->
+    <div id="bookingPage" class="page">
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Book Your Appointment</h2>
+          <p style="color: #666; max-width: 600px; margin: 1rem auto;">Skip the queue. Book directly with MV.</p>
+        </div>
+        <div style="max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 1.5rem; border: 1px solid rgba(212, 175, 55, 0.3);">
+          <p class="text-center" style="color: #666;">Booking system will be available once deployed with Firebase.</p>
+          <a href="#home" class="btn-primary" style="display: block; margin: 2rem auto; width: fit-content;">Back to Home</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- ACCOUNT PAGE -->
+    <div id="accountPage" class="page">
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">My Account</h2>
+        </div>
+        <div style="max-width: 800px; margin: 0 auto;">
+          <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem;">My Bookings</h3>
+          <div id="myBookingsList">
+            <p style="color: #666; text-align: center; padding: 2rem;">Sign in to view your bookings</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="section-dark" style="padding: 3rem 1rem; border-top: 1px solid rgba(212, 175, 55, 0.2);">
+      <div style="max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+        <div>
+          <div class="logo-text" style="font-size: 1.5rem; margin-bottom: 1rem;">MV FADEZ</div>
+          <p style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">1076 High Road<br>Romford, RM6 4BD<br>London, England</p>
+        </div>
+        <div>
+          <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--gold);">Quick Links</h4>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.875rem;">
+            <a href="#products" style="color: rgba(255,255,255,0.6); text-decoration: none;">Products</a>
+            <a href="#booking" style="color: rgba(255,255,255,0.6); text-decoration: none;">Book Appointment</a>
+            <a href="https://www.instagram.com/mv.fades_" target="_blank" style="color: rgba(255,255,255,0.6); text-decoration: none;">Instagram</a>
+            <a href="https://www.tiktok.com/@mv_fades" target="_blank" style="color: rgba(255,255,255,0.6); text-decoration: none;">TikTok</a>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-weight: 600; margin-bottom: 1rem; color: var(--gold);">Customer Service</h4>
+          <div style="font-size: 0.875rem; color: rgba(255,255,255,0.6);">
+            <p>Shipping: 5-7 business days</p>
+            <p>Returns: 30-day guarantee</p>
+            <p>Support: Via Instagram DM</p>
+          </div>
+        </div>
+      </div>
+      <div style="text-align: center; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(212, 175, 55, 0.2); font-size: 0.875rem; color: rgba(255,255,255,0.4);">
+        <p>&copy; 2026 MV Fadez. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Cart Backdrop -->
+  <div class="cart-backdrop" id="cartBackdrop" onclick="closeCart()"></div>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h2>Shopping Cart</h2>
+      <button class="close-btn" onclick="closeCart()">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="cart-items" id="cartItems">
+      <div class="cart-empty">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p>Your cart is empty</p>
+      </div>
+    </div>
+
+    <div class="cart-footer" id="cartFooter" style="display: none;">
+      <div class="cart-subtotal">
+        <span>Subtotal</span>
+        <span id="cartSubtotal">£0.00</span>
+      </div>
+      <div class="cart-total">
+        <span>Total</span>
+        <span id="cartTotal">£0.00</span>
+      </div>
+      <button class="btn-checkout" onclick="checkout()">Continue to Checkout</button>
+      <p style="text-align: center; font-size: 0.75rem; color: rgba(255,255,255,0.5); margin-top: 0.75rem;">Secure payment • Free shipping over £50</p>
+    </div>
+  </div>
+
+  <script>
+    const products = [
+      { id: 1, name: "Uppercut Deluxe Pomade", price: 16.99, description: "Medium hold, high shine. The go-to pomade for clean fades.", fullDescription: "This water-based pomade gives you the perfect balance of hold and shine. Washes out easily, smells amazing, and keeps your style locked in all day.", features: ["Water-based formula", "Medium hold, high shine", "Easy to wash out", "Fresh masculine scent", "Works on all hair types"], howToUse: "Apply to damp or dry hair. Start with a small amount and add more as needed.", category: "Styling", image: "https://via.placeholder.com/800x800/2C3E50/FFFFFF?text=Uppercut", featured: true, reviews: "4.8/5", reviewCount: 2100, sales: 2100 },
+      { id: 2, name: "Reuzel Blue Pomade", price: 14.99, description: "Strong hold, high shine. Water-based formula.", fullDescription: "The barbershop classic. Strong hold that lasts all day with a brilliant high shine finish.", features: ["Strong hold formula", "High shine finish", "Water-soluble", "Vanilla fragrance", "Professional grade"], howToUse: "Work a small amount between palms, apply to dry or towel-dried hair.", category: "Styling", image: "https://via.placeholder.com/800x800/34495E/FFFFFF?text=Reuzel", featured: true, reviews: "4.9/5", reviewCount: 3400, sales: 3400 },
+      { id: 3, name: "Honest Amish Beard Oil", price: 12.99, description: "100% organic. Softens and conditions.", fullDescription: "All-natural blend of organic oils that conditions your beard and skin underneath.", features: ["100% organic ingredients", "Eliminates beard itch", "Softens and conditions", "Natural scent", "No harsh chemicals"], howToUse: "Apply 3-5 drops to your palm, rub hands together, then massage into beard.", category: "Beard Care", image: "https://via.placeholder.com/800x800/8E44AD/FFFFFF?text=Beard+Oil", featured: true, reviews: "4.7/5", reviewCount: 8200, sales: 8200 },
+      { id: 4, name: "Layrite Cement Clay", price: 15.99, description: "Extreme hold, matte finish.", fullDescription: "Maximum hold with a natural matte finish. Creates incredible texture and definition.", features: ["Extreme hold", "Matte finish", "Creates texture", "Reworkable", "No sticky residue"], howToUse: "Rub a small amount between hands, work through dry hair.", category: "Styling", image: "https://via.placeholder.com/800x800/E67E22/FFFFFF?text=Layrite", reviews: "4.6/5", reviewCount: 1800, sales: 1800 },
+      { id: 5, name: "Baxter Clay Pomade", price: 18.99, description: "Natural matte finish with flexible hold.", fullDescription: "Premium clay pomade that gives you flexible hold with a natural, matte finish.", features: ["Flexible hold", "Natural matte finish", "Adds volume", "Lightweight formula", "Citrus wood scent"], howToUse: "Apply to damp hair and style. Can be reactivated with water.", category: "Styling", image: "https://via.placeholder.com/800x800/16A085/FFFFFF?text=Baxter", reviews: "4.5/5", reviewCount: 1200, sales: 1200 },
+      { id: 6, name: "Jack Black Beard Oil", price: 19.99, description: "Premium blend with kalahari melon oils.", fullDescription: "Lightweight conditioning oil with Kalahari melon oil and vitamin E.", features: ["Premium ingredients", "Vitamin E enriched", "Non-greasy formula", "Natural woody scent", "Moisturizes skin"], howToUse: "After showering, apply 3-4 drops to beard and massage in thoroughly.", category: "Beard Care", image: "https://via.placeholder.com/800x800/C0392B/FFFFFF?text=Jack+Black", reviews: "4.8/5", reviewCount: 2900, sales: 2900 },
+      { id: 7, name: "American Crew Fiber", price: 13.99, description: "High hold with low shine.", fullDescription: "The original fiber. High hold with low shine for textured looks.", features: ["High hold", "Low shine finish", "Reworkable all day", "Creates texture", "Citrus mint fragrance"], howToUse: "Emulsify between palms and distribute evenly through hair.", category: "Styling", image: "https://via.placeholder.com/800x800/2980B9/FFFFFF?text=Crew+Fiber", reviews: "4.7/5", reviewCount: 5600, sales: 5600 },
+      { id: 8, name: "Art of Shaving Pre-Shave Oil", price: 21.99, description: "Protects skin for the closest shave.", fullDescription: "Luxury pre-shave oil that creates a protective barrier.", features: ["Protects skin", "Softens beard", "Reduces irritation", "Sandalwood scent", "Premium formula"], howToUse: "Apply to damp skin before shaving cream.", category: "Shaving", image: "https://via.placeholder.com/800x800/27AE60/FFFFFF?text=Shave+Oil", reviews: "4.6/5", reviewCount: 3100, sales: 3100 },
+      { id: 9, name: "Suavecito Pomade", price: 10.99, description: "Medium hold, medium shine.", fullDescription: "The original Suavecito pomade. Medium hold and shine for classic styles.", features: ["Medium hold & shine", "Water-based", "Easy wash out", "Classic formula", "Mild pleasant scent"], howToUse: "Scoop out desired amount, rub between palms, apply to hair and style.", category: "Styling", image: "https://via.placeholder.com/800x800/D35400/FFFFFF?text=Suavecito", reviews: "4.7/5", reviewCount: 4200, sales: 4200 }
+    ];
+
+    let cart = [];
+    let currentSort = 'featured';
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('pageLoader').classList.add('hidden');
+      }, 1500);
+
+      renderFeaturedProducts();
+      renderAllProducts();
+      setupRouting();
+      updateCartDisplay();
+    });
+
+    function setupRouting() {
+      window.addEventListener('hashchange', handleRoute);
+      handleRoute();
+    }
+
+    function handleRoute() {
+      const hash = window.location.hash.slice(1);
+      const parts = hash.split('/');
+      const page = parts[0] || 'home';
+
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      
+      if (page === 'product' && parts[1]) {
+        showProductDetailPage(parseInt(parts[1]));
+        document.getElementById('productDetailPage').classList.add('active');
+      } else {
+        const pageMap = {
+          'home': 'homePage',
+          'products': 'productsPage',
+          'booking': 'bookingPage',
+          'account': 'accountPage',
+          'about': 'homePage'
+        };
+
+        const pageEl = document.getElementById(pageMap[page] || 'homePage');
+        if (pageEl) pageEl.classList.add('active');
+
+        if (page === 'about') {
+          setTimeout(() => {
+            document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        }
+      }
+
+      window.scrollTo(0, 0);
+    }
+
+    function handleSearch() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const results = document.getElementById('searchResults');
+      
+      if (query.length === 0) {
+        results.classList.remove('active');
+        return;
+      }
+
+      const filtered = products.filter(p => 
+        p.name.toLowerCase().includes(query) || 
+        p.description.toLowerCase().includes(query) ||
+        p.category.toLowerCase().includes(query)
+      );
+
+      if (filtered.length === 0) {
+        results.innerHTML = '<div style="padding: 1rem; text-align: center; color: rgba(255,255,255,0.5);">No products found</div>';
+      } else {
+        results.innerHTML = filtered.map(p => `
+          <div class="search-result-item" onclick="goToProduct(${p.id})">
+            <img src="${p.image}" alt="${p.name}">
+            <div class="search-result-info">
+              <div class="search-result-name">${p.name}</div>
+            </div>
+            <div class="search-result-price">£${p.price.toFixed(2)}</div>
+          </div>
+        `).join('');
+      }
+
+      results.classList.add('active');
+    }
+
+    function showSearchResults() {
+      const input = document.getElementById('searchInput');
+      if (input.value.length > 0) {
+        document.getElementById('searchResults').classList.add('active');
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      const searchContainer = document.querySelector('.search-container');
+      if (!searchContainer.contains(e.target)) {
+        document.getElementById('searchResults').classList.remove('active');
+      }
+    });
+
+    function goToProduct(id) {
+      document.getElementById('searchResults').classList.remove('active');
+      document.getElementById('searchInput').value = '';
+      window.location.hash = `#product/${id}`;
+    }
+
+    function renderFeaturedProducts() {
+      const grid = document.getElementById('featuredProducts');
+      const featured = products.filter(p => p.featured).slice(0, 3);
+      grid.innerHTML = featured.map(productCard).join('');
+    }
+
+    function renderAllProducts() {
+      const sorted = sortProductsArray();
+      const grid = document.getElementById('allProducts');
+      grid.innerHTML = sorted.map(productCard).join('');
+      document.getElementById('productCount').textContent = sorted.length;
+    }
+
+    function sortProducts() {
+      currentSort = document.getElementById('sortSelect').value;
+      renderAllProducts();
+    }
+
+    function sortProductsArray() {
+      const arr = [...products];
+      if (currentSort === 'price-low') return arr.sort((a, b) => a.price - b.price);
+      if (currentSort === 'price-high') return arr.sort((a, b) => b.price - a.price);
+      if (currentSort === 'featured') return arr.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+      return arr;
+    }
+
+    function productCard(p) {
+      return `
+        <div class="product-card" onclick="window.location.hash='#product/${p.id}'">
+          <div class="product-image">
+            <img src="${p.image}" alt="${p.name}">
+          </div>
+          <div class="product-info">
+            <p class="product-category">${p.category}</p>
+            <h3 class="product-name">${p.name}</h3>
+            <p class="product-description">${p.description}</p>
+            <p class="product-reviews">${p.reviews} (${p.reviewCount} reviews)</p>
+            <div class="product-footer">
+              <span class="product-price">£${p.price.toFixed(2)}</span>
+              <button class="btn-add" onclick="event.stopPropagation(); addToCart(${p.id})">Add</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function showProductDetailPage(id) {
+      const product = products.find(p => p.id === id);
+      if (!product) return;
+
+      const container = document.getElementById('productDetailContent');
+      container.innerHTML = `
+        <div class="breadcrumb">
+          <a href="#home">Home</a>
+          <span>/</span>
+          <a href="#products">Products</a>
+          <span>/</span>
+          <span>${product.name}</span>
+        </div>
+
+        <div class="product-detail-grid">
+          <div class="product-detail-image">
+            <img src="${product.image}" alt="${product.name}">
+          </div>
+
+          <div class="product-detail-info">
+            <p class="product-detail-category">${product.category}</p>
+            <h1 class="product-detail-title">${product.name}</h1>
+            
+            <div class="product-detail-reviews">
+              <div class="stars">★★★★★</div>
+              <span style="color: #666;">${product.reviews} (${product.reviewCount} reviews)</span>
+            </div>
+
+            <div class="product-detail-price">£${product.price.toFixed(2)}</div>
+
+            <p class="product-detail-description">${product.fullDescription}</p>
+
+            ${product.features ? `
+            <div class="product-features">
+              <h3>Key Features</h3>
+              <ul>
+                ${product.features.map(f => `<li>${f}</li>`).join('')}
+              </ul>
+            </div>
+            ` : ''}
+
+            <div class="product-detail-actions">
+              <button class="btn-primary" onclick="addToCart(${product.id})">
+                Add to Cart
+              </button>
+            </div>
+
+            ${product.howToUse ? `
+            <div class="product-how-to-use">
+              <h3>How to Use</h3>
+              <p>${product.howToUse}</p>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function addToCart(productId) {
+      const product = products.find(p => p.id === productId);
+      const existing = cart.find(item => item.id === productId);
+      
+      if (existing) {
+        existing.quantity++;
+      } else {
+        cart.push({ ...product, quantity: 1 });
+      }
+      
+      updateCartDisplay();
+      openCart();
+    }
+
+    function updateQuantity(productId, change) {
+      const item = cart.find(i => i.id === productId);
+      if (item) {
+        item.quantity += change;
+        if (item.quantity <= 0) {
+          cart = cart.filter(i => i.id !== productId);
+        }
+        updateCartDisplay();
+      }
+    }
+
+    function removeFromCart(productId) {
+      cart = cart.filter(i => i.id !== productId);
+      updateCartDisplay();
+    }
+
+    function updateCartDisplay() {
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      document.getElementById('cartCount').textContent = count;
+      
+      const cartItems = document.getElementById('cartItems');
+      const cartFooter = document.getElementById('cartFooter');
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = `
+          <div class="cart-empty">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+            </svg>
+            <p>Your cart is empty</p>
+          </div>
+        `;
+        cartFooter.style.display = 'none';
+      } else {
+        cartItems.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+            <div class="cart-item-info">
+              <div class="cart-item-name">${item.name}</div>
+              <div class="cart-item-category">${item.category}</div>
+              <div class="cart-item-price">£${item.price.toFixed(2)} each</div>
+              <div class="cart-item-quantity">
+                <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">−</button>
+                <span class="qty-display">${item.quantity}</span>
+                <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+              </div>
+            </div>
+            <button class="cart-item-remove" onclick="removeFromCart(${item.id})">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        `).join('');
+
+        document.getElementById('cartSubtotal').textContent = '£' + total.toFixed(2);
+        document.getElementById('cartTotal').textContent = '£' + total.toFixed(2);
+        cartFooter.style.display = 'block';
+      }
+    }
+
+    function openCart() {
+      document.getElementById('cartSidebar').classList.add('active');
+      document.getElementById('cartBackdrop').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeCart() {
+      document.getElementById('cartSidebar').classList.remove('active');
+      document.getElementById('cartBackdrop').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function toggleCart() {
+      const sidebar = document.getElementById('cartSidebar');
+      if (sidebar.classList.contains('active')) {
+        closeCart();
+      } else {
+        openCart();
+      }
+    }
+
+    function checkout() {
+      alert('Checkout functionality will be available when deployed with Stripe. Demo mode active.');
+    }
+  </script>
+</body>
+</html>
